@@ -1,19 +1,29 @@
+{-# Language QuasiQuotes #-}
+
 module Main where
 
 import Text.Printf
 import System.Environment
+import Verbatim
+import VerbatimParser
+
+
+
 
 main = do
   args <- getArgs
   case length args of
        4 -> do
-            let  x1        = read2 x1'
-                 x2       = read2 x2'
-                 dim       = read3 dim'
-                 totCharge = read2 totCharge'
-                 [x1',x2',dim',totCharge'] = args
+            let  [x1,x2,dimF,totCharge] = map read2 args
+                 dim = floor dimF
             piastrami x1 x2 dim totCharge
-       otherwise -> putStrLn "Plates x1 x2 radius charge"
+       otherwise -> putStrLn $ printVerbatim errMessage 
+
+errMessage = [verbatim|
+Please write:
+$ Plates x1 x2 radius charge
+$ Plates -5.0 6.0 15.0 1.0
+|]
 
 piastrami :: Double -> Double -> Integer -> Double -> IO()
 piastrami x x2 dim totalCharge = do

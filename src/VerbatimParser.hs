@@ -30,7 +30,7 @@ parseExp s =
 
 
 parseVerbatim :: Parser Verbatim
-parseVerbatim = pTerm `chainl1` (return DatVerbatim)
+parseVerbatim = (option ' ' newline) >> (pTerm `chainl1` (return DatVerbatim))
 
 pTerm :: Parser Verbatim
 pTerm = pPlainTex <|> pMetaVar
@@ -45,3 +45,5 @@ small   = lower <|> char '_'
 large   = upper
 idchar  = small <|> large <|> digit <|> char '\''
 ident = do { c <- small; cs <- many idchar; return (c:cs) }
+
+

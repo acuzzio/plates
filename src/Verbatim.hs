@@ -32,3 +32,6 @@ antiExprExpr _ = Nothing
 antiExpPat :: Verbatim -> Maybe (Q TH.Pat)
 antiExpPat (EMetaVar v)   = Just $ TH.varP $ TH.mkName v
 antiExpPat _ = Nothing
+
+liftS :: String -> Verbatim
+liftS = PlainDat
