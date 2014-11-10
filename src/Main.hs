@@ -6,15 +6,14 @@ import System.Environment
 main = do
   args <- getArgs
   case length args of
-       3 -> do
-            let  x         = read2 x'
-                 x1        = 0 - x
-                 x2        = difference + x
+       4 -> do
+            let  x1        = read2 x1'
+                 x2       = read2 x2'
                  dim       = read3 dim'
                  totCharge = read2 totCharge'
-                 [x',dim',totCharge'] = args
+                 [x1',x2',dim',totCharge'] = args
             piastrami x1 x2 dim totCharge
-       otherwise -> putStrLn "runhaskell piastrami.hs distance ray charge"
+       otherwise -> putStrLn "Plates x1 x2 radius charge"
 
 piastrami :: Double -> Double -> Integer -> Double -> IO()
 piastrami x x2 dim totalCharge = do

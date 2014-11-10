@@ -9,8 +9,8 @@ import VerbatimParser
 
 
 -- ================> <=====================
-shell :: QuasiQuoter
-shell = QuasiQuoter {quoteExp  = quoteExpExp,
+verbatim :: QuasiQuoter
+verbatim = QuasiQuoter {quoteExp  = quoteExpExp,
                      quotePat  = quoteExprPat,
                      quoteDec  = undefined,
                      quoteType = undefined }

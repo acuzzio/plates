@@ -1,37 +1,37 @@
 {-# Language QuasiQuotes #-}
 
-module Main where
+module Examples where
 
 
-import Alessio 
-import ShellParser
+import Verbatim 
+import VerbatimParser
 
 
-liftS :: String -> Shell
+liftS :: String -> Verbatim
 liftS = PlainDat 
  
 main = do
-      print "hello"
-      writeFile "out1" $ printShell $ script1 (liftS "FunArg1")  (liftS "32")
-      writeFile "out2" . printShell $ script2 . liftS . show $ [0..4] 
+--      print "hello"
+      writeFile "LOL" $ printVerbatim $ script1 (liftS "FunArg1")  (liftS "32")
+--      putStrLn $ printVerbatim $ script2 . liftS . show $ [0..4] 
 
-script1 m n = [shell|
-#! /usr/bin/FunShell
-Hi there Alessio I'm a funny Shell script
+script1 m n = [verbatim|
+#! /usr/bin/Funverbatim
+Hi there Alessio I'm a funny verbatim script
 for computing funny stuff with some 
 funny argument like %m and %n
 |]
   
-script2 xs = [shell|random_Path 
+script2 xs = [verbatim|random_Path 
 what if I want to print a list ?
 well for the moment lets just show the list like %xs|]
 
 
--- QuasiQuoter quotePat is  [shell| $n |] (pattern) in this expression
--- script3 [shell| $n |] = [shell| some scripts|]
+-- QuasiQuoter quotePat is  [verbatim| $n |] (pattern) in this expression
+-- script3 [verbatim| $n |] = [verbatim| some scripts|]
 
 -- QuasiQuoter quoteDec would be this one:
--- [shell| NewFun = Exp1 Exp2 |]
+-- [verbatim| NewFun = Exp1 Exp2 |]
 
 -- QuasiQuoter quoteType would be here:
 
