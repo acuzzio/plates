@@ -7,9 +7,6 @@ import System.Environment
 import Verbatim
 import VerbatimParser
 
-
-
-
 main = do
   args <- getArgs
   case length args of
