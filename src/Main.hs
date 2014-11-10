@@ -41,8 +41,9 @@ piastrami pt x x2 dim totalCharge = do
       toFile       = unlines $ map unwords $ reformatZ
       howMany      = show $ length charges
       toSee        = unlines $ map unwords $ map (\x -> ["H",x!!0,x!!1,x!!2]) strings
-  electricField (abs (x2 - x)) dim
-  dypoleMoment totalCharge x x2
+      message1     = electricField (abs (x2 - x)) dim
+      message2     = dypoleMoment totalCharge x x2
+  putStrLn $ message1 ++ message2
   writeFile "piastra" $ howMany ++ "\n" 
   appendFile "piastra" $ toFile
   writeFile "toSee.xyz" $ howMany ++ "\n\n"
@@ -76,9 +77,9 @@ lengthInferior :: Double -> Double -> Double -> Bool
 lengthInferior y z ray = let length = sqrt (y**2 + z**2)
                          in if length > ray then False else True
 
-electricField :: Double -> Integer -> IO()
-electricField x dimension = do
-  let mToAng       = 1.0e-10
+electricField :: Double -> Integer -> String 
+electricField x dimension = let 
+      mToAng       = 1.0e-10
       elecCharge   = 1.6e-19
       epsilZero    = 8.85e-12
       surface      = pi * ((fromIntegral dimension)**2.0)
@@ -86,14 +87,13 @@ electricField x dimension = do
       charge       = elecCharge * x
       field        = (charge / surfaceM2)/epsilZero
       r            = sqrt $ 1 / (4 * pi * (x/surface))
-  putStrLn $ "\n" ++ (show field) ++ " Newton/Coulomb or volt/Meteri\n"
-  putStrLn $ "Electric field equivalent to a charge of an Ion/Electron at " ++ (show r) ++ " Angstrom\n" 
+      in "\n" ++ (show field) ++ " Newton/Coulomb or volt/Meteri\nElectric field equivalent to a charge of an Ion/Electron at " ++ (show r) ++ " Angstrom\n" 
 
-dypoleMoment :: Double -> Double -> Double -> IO()
-dypoleMoment charge x x2 = do
-  let distance = abs ( x - x2 )
+dypoleMoment :: Double -> Double -> Double -> String
+dypoleMoment charge x x2 = let
+      distance = abs ( x - x2 )
       mom      = distance * charge
-  putStrLn $ "\n" ++ (show mom) ++ " Debye (electron charge * Angstrom)\n"
+      in (show mom) ++ " Debye (electron charge * Angstrom)"
 
 read2 x = read x :: Double
 read3 x = read x :: Integer
