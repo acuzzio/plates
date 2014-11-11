@@ -64,7 +64,7 @@ generatePoints pt x x2 dim totalCharge = case pt of
 
 reformat :: String -> String
 reformat x = let float = read x :: Double
-             in printf  "%3.4f" float :: String
+             in printf  "%3.8f" float :: String
 
 replace :: Int -> [String] -> [String]
 replace position list = let 
