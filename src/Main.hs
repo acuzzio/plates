@@ -22,12 +22,15 @@ main = do
        otherwise -> putStrLn $ printVerbatim errMessage 
 
 errMessage = [verbatim|
-Please write:
+
+Plates program usage:
 $ Plates plateType   dim1  dim2 howManyPointsInDiameter  plateRadius plateTotalCharge
 $ Plates     X       -5.0  6.0           100                15.0          1.0
+
+For example
 $ Plates X -5.0 6.0 100 15.0 1.0
 
-avaiable plateTypes:
+Available plateTypes:
 X - 2 circular plates in X axis
 Z - 2 circular plates in Z axis
 
@@ -38,11 +41,12 @@ data PlateType = X | Z deriving (Show, Read)
 piastrami :: PlateType -> Double -> Double -> Int -> Double -> Double -> IO()
 piastrami pt x x2 dens dim totalCharge = do
   let charges      = generatePoints pt x x2 dens dim totalCharge 
-      strings      = map (map show) charges
-      reformatZ    = map (replace 3) strings 
+--      strings      = map (map show) charges
+--      reformatZ    = map (replace 3) strings 
+      reformatZ    = map (map printW) charges
       toFile       = unlines $ map unwords $ reformatZ
       howMany      = show $ length charges
-      toSee        = unlines $ map unwords $ map (\x -> ["H",x!!0,x!!1,x!!2]) strings
+      toSee        = unlines $ map unwords $ map (\x -> ["H",x!!0,x!!1,x!!2]) reformatZ
       message1     = electricField (abs (x2 - x)) dim
       message2     = dypoleMoment totalCharge x x2
   putStrLn $ message1 ++ message2
@@ -51,6 +55,7 @@ piastrami pt x x2 dens dim totalCharge = do
   writeFile "toSee.xyz" $ howMany ++ "\n\n"
   appendFile "toSee.xyz" $ toSee
 
+generatePoints :: PlateType -> Double -> Double -> Int -> Double -> Double -> [[Double]]
 generatePoints pt x x2 dens dimD totalCharge = case pt of
   X -> let singleCharge = totalCharge / (fromIntegral pointsN :: Double)
            points       = [[x, y, z, singleCharge, 0.0, 0.0, 0.0] | y <- listar (-dimD) dimD dens, z <- listar (-dimD) dimD dens, lengthInferior y z dimD]
@@ -67,6 +72,8 @@ generatePoints pt x x2 dens dimD totalCharge = case pt of
 reformat :: String -> String
 reformat x = let float = read x :: Double
              in printf  "%3.8f" float :: String
+
+printW x = printf  "%3.8f" x :: String
 
 replace :: Int -> [String] -> [String]
 replace position list = let 
