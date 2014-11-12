@@ -10,20 +10,22 @@ import VerbatimParser
 main = do
   args <- getArgs
   case length args of
-       5 -> do
-            let  [plateT', x1', x2', dim', totCharge'] = args
+       6 -> do
+            let  [plateT', x1', x2', dens', dim', totCharge'] = args
                  plateT    = read plateT' :: PlateType
                  x1        = read2 x1'
                  x2        = read2 x2'
-                 dim       = floor $ read2 dim'
+                 dens      = floor $ read2 dens'
+                 dim       = read2 dim'
                  totCharge = read2 totCharge'
-            piastrami plateT x1 x2 dim totCharge
+            piastrami plateT x1 x2 dens dim totCharge
        otherwise -> putStrLn $ printVerbatim errMessage 
 
 errMessage = [verbatim|
 Please write:
-$ Plates plateType x1 x2 radius charge
-$ Plates X -5.0 6.0 15.0 1.0
+$ Plates plateType   dim1  dim2 howManyPointsInDiameter  plateRadius plateTotalCharge
+$ Plates     X       -5.0  6.0           100                15.0          1.0
+$ Plates X -5.0 6.0 100 15.0 1.0
 
 avaiable plateTypes:
 X - 2 circular plates in X axis
@@ -33,9 +35,9 @@ Z - 2 circular plates in Z axis
 
 data PlateType = X | Z deriving (Show, Read)
 
-piastrami :: PlateType -> Double -> Double -> Integer -> Double -> IO()
-piastrami pt x x2 dim totalCharge = do
-  let charges      = generatePoints pt x x2 dim totalCharge 
+piastrami :: PlateType -> Double -> Double -> Int -> Double -> Double -> IO()
+piastrami pt x x2 dens dim totalCharge = do
+  let charges      = generatePoints pt x x2 dens dim totalCharge 
       strings      = map (map show) charges
       reformatZ    = map (replace 3) strings 
       toFile       = unlines $ map unwords $ reformatZ
@@ -49,15 +51,15 @@ piastrami pt x x2 dim totalCharge = do
   writeFile "toSee.xyz" $ howMany ++ "\n\n"
   appendFile "toSee.xyz" $ toSee
 
-generatePoints pt x x2 dim totalCharge = case pt of
+generatePoints pt x x2 dens dimD totalCharge = case pt of
   X -> let singleCharge = totalCharge / (fromIntegral pointsN :: Double)
-           points       = [[x, y, z, singleCharge, 0.0, 0.0, 0.0] | y <- map (\x -> fromInteger x :: Double) [(-dim)..dim], z <- map (\x -> fromInteger x :: Double) [(-dim)..dim], lengthInferior y z (fromInteger dim :: Double)]
-           points2      = [[x2, y, z, (-singleCharge), 0.0, 0.0, 0.0] | y <- map (\x -> fromInteger x :: Double) [(-dim)..dim], z <- map (\x -> fromInteger x :: Double) [(-dim)..dim], lengthInferior y z (fromInteger dim :: Double)]
+           points       = [[x, y, z, singleCharge, 0.0, 0.0, 0.0] | y <- listar (-dimD) dimD dens, z <- listar (-dimD) dimD dens, lengthInferior y z dimD]
+           points2      = [[x2, y, z, (-singleCharge), 0.0, 0.0, 0.0] | y <- listar (-dimD) dimD dens, z <- listar (-dimD) dimD dens, lengthInferior y z dimD]
            pointsN      = length points
        in points ++ points2  
   Z -> let singleCharge = totalCharge / (fromIntegral pointsN :: Double)
-           points       = [[z, y, x, singleCharge, 0.0, 0.0, 0.0] | y <- map (\x -> fromInteger x :: Double) [(-dim)..dim], z <- map (\x -> fromInteger x :: Double) [(-dim)..dim], lengthInferior y z (fromInteger dim :: Double)]            
-           points2      = [[z, y, x2, (-singleCharge), 0.0, 0.0, 0.0] | y <- map (\x -> fromInteger x :: Double) [(-dim)..dim], z <- map (\x -> fromInteger x :: Double) [(-dim)..dim], lengthInferior y z (fromInteger dim :: Double)]
+           points       = [[z, y, x, singleCharge, 0.0, 0.0, 0.0] | y <- listar (-dimD) dimD dens, z <- listar (-dimD) dimD dens, lengthInferior y z dimD]            
+           points2      = [[z, y, x2, (-singleCharge), 0.0, 0.0, 0.0] | y <- listar (-dimD) dimD dens, z <- listar (-dimD) dimD dens, lengthInferior y z dimD]
            pointsN      = length points
        in points ++ points2 
 
@@ -77,12 +79,12 @@ lengthInferior :: Double -> Double -> Double -> Bool
 lengthInferior y z ray = let length = sqrt (y**2 + z**2)
                          in if length > ray then False else True
 
-electricField :: Double -> Integer -> String 
+electricField :: Double -> Double -> String 
 electricField x dimension = let 
       mToAng       = 1.0e-10
       elecCharge   = 1.6e-19
       epsilZero    = 8.85e-12
-      surface      = pi * ((fromIntegral dimension)**2.0)
+      surface      = pi * (dimension **2.0)
       surfaceM2    = surface / mToAng
       charge       = elecCharge * x
       field        = (charge / surfaceM2)/epsilZero
@@ -95,5 +97,11 @@ dypoleMoment charge x x2 = let
       mom      = distance * charge
       in (show mom) ++ " Debye (electron charge * Angstrom)"
 
+listar :: Double -> Double -> Int -> [Double]
+listar max min res = let
+                    deno = fromIntegral res
+                    step  = (max-min)/(deno-1.0)
+                    in take (res) $ iterate (+step) min
+
 read2 x = read x :: Double
-read3 x = read x :: Integer
+read3 x = read x :: Int
